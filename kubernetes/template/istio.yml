@@ -1,0 +1,339 @@
+
+apiVersion: "networking.istio.io/v1alpha3"
+kind: "Gateway"
+metadata: 
+  name: autonomous driving project management
+spec: 
+  selector: 
+    istio: "ingressgateway"
+  servers: 
+    - 
+      port: 
+        number: 80
+        name: "http"
+        protocol: "HTTP"
+      hosts: 
+        - "*"
+
+
+---
+
+
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: rollout-projectManagement
+spec:
+  replicas: 5
+  strategy:
+    canary:
+      trafficRouting:
+        istio:
+          virtualService: 
+            name: vsvc-projectManagement        # required
+            routes:
+            - primary                 # required
+          destinationRule:
+            name: destrule-projectManagement    # required
+            canarySubsetName: canary  # required
+            stableSubsetName: stable  # required
+      steps:
+      - setWeight: 5
+      - pause:
+          duration: 10s
+      - setWeight: 20
+      - pause:
+          duration: 10s
+      - setWeight: 40
+      - pause:
+          duration: 10s
+      - setWeight: 60
+      - pause:
+          duration: 10s
+      - setWeight: 80
+      - pause:
+          duration: 10s
+
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: projectManagement
+  template:
+    metadata:
+      labels:
+        app: projectManagement
+    spec:
+      containers:
+      - name: projectManagement
+        image: "userid/projectManagement:version"
+        ports:
+        - name: http
+          containerPort: 80
+          protocol: TCP
+        resources:
+          requests:
+            memory: 32Mi
+            cpu: 5m
+
+---
+ 
+
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: vsvc-projectManagement
+spec:
+  gateways:
+  - autonomous driving project management
+  hosts:
+  - "*"
+  http:
+  - name: primary       # referenced in canary.trafficRouting.istio.virtualService.routes
+    match: 
+    - uri: 
+        exact: "/projectManagements"
+    rewrite:
+      uri: "/"
+    route:
+    - destination:
+        host: projectManagement
+        subset: stable  # referenced in canary.trafficRouting.istio.destinationRule.stableSubsetName
+      weight: 100
+    - destination:
+        host: projectManagement
+        subset: canary  # referenced in canary.trafficRouting.istio.destinationRule.canarySubsetName
+      weight: 0
+
+
+---
+
+
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: destrule-projectManagement
+spec:
+  host: projectManagement
+  subsets:
+  - name: canary   # referenced in canary.trafficRouting.istio.destinationRule.canarySubsetName
+    labels:        # labels will be injected with canary rollouts-pod-template-hash value
+      app: project-management
+  - name: stable   # referenced in canary.trafficRouting.istio.destinationRule.stableSubsetName
+    labels:        # labels will be injected with canary rollouts-pod-template-hash value
+      app: project-management
+
+
+---
+
+
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: rollout-developmentGuide
+spec:
+  replicas: 5
+  strategy:
+    canary:
+      trafficRouting:
+        istio:
+          virtualService: 
+            name: vsvc-developmentGuide        # required
+            routes:
+            - primary                 # required
+          destinationRule:
+            name: destrule-developmentGuide    # required
+            canarySubsetName: canary  # required
+            stableSubsetName: stable  # required
+      steps:
+      - setWeight: 5
+      - pause:
+          duration: 10s
+      - setWeight: 20
+      - pause:
+          duration: 10s
+      - setWeight: 40
+      - pause:
+          duration: 10s
+      - setWeight: 60
+      - pause:
+          duration: 10s
+      - setWeight: 80
+      - pause:
+          duration: 10s
+
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: developmentGuide
+  template:
+    metadata:
+      labels:
+        app: developmentGuide
+    spec:
+      containers:
+      - name: developmentGuide
+        image: "userid/developmentGuide:version"
+        ports:
+        - name: http
+          containerPort: 80
+          protocol: TCP
+        resources:
+          requests:
+            memory: 32Mi
+            cpu: 5m
+
+---
+ 
+
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: vsvc-developmentGuide
+spec:
+  gateways:
+  - autonomous driving project management
+  hosts:
+  - "*"
+  http:
+  - name: primary       # referenced in canary.trafficRouting.istio.virtualService.routes
+    match: 
+    - uri: 
+        exact: "/developmentGuides"
+    rewrite:
+      uri: "/"
+    route:
+    - destination:
+        host: developmentGuide
+        subset: stable  # referenced in canary.trafficRouting.istio.destinationRule.stableSubsetName
+      weight: 100
+    - destination:
+        host: developmentGuide
+        subset: canary  # referenced in canary.trafficRouting.istio.destinationRule.canarySubsetName
+      weight: 0
+
+
+---
+
+
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: destrule-developmentGuide
+spec:
+  host: developmentGuide
+  subsets:
+  - name: canary   # referenced in canary.trafficRouting.istio.destinationRule.canarySubsetName
+    labels:        # labels will be injected with canary rollouts-pod-template-hash value
+      app: development-guide
+  - name: stable   # referenced in canary.trafficRouting.istio.destinationRule.stableSubsetName
+    labels:        # labels will be injected with canary rollouts-pod-template-hash value
+      app: development-guide
+
+
+---
+
+
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: rollout-educationSupport
+spec:
+  replicas: 5
+  strategy:
+    canary:
+      trafficRouting:
+        istio:
+          virtualService: 
+            name: vsvc-educationSupport        # required
+            routes:
+            - primary                 # required
+          destinationRule:
+            name: destrule-educationSupport    # required
+            canarySubsetName: canary  # required
+            stableSubsetName: stable  # required
+      steps:
+      - setWeight: 5
+      - pause:
+          duration: 10s
+      - setWeight: 20
+      - pause:
+          duration: 10s
+      - setWeight: 40
+      - pause:
+          duration: 10s
+      - setWeight: 60
+      - pause:
+          duration: 10s
+      - setWeight: 80
+      - pause:
+          duration: 10s
+
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: educationSupport
+  template:
+    metadata:
+      labels:
+        app: educationSupport
+    spec:
+      containers:
+      - name: educationSupport
+        image: "userid/educationSupport:version"
+        ports:
+        - name: http
+          containerPort: 80
+          protocol: TCP
+        resources:
+          requests:
+            memory: 32Mi
+            cpu: 5m
+
+---
+ 
+
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: vsvc-educationSupport
+spec:
+  gateways:
+  - autonomous driving project management
+  hosts:
+  - "*"
+  http:
+  - name: primary       # referenced in canary.trafficRouting.istio.virtualService.routes
+    match: 
+    - uri: 
+        exact: "/educationSupports"
+    rewrite:
+      uri: "/"
+    route:
+    - destination:
+        host: educationSupport
+        subset: stable  # referenced in canary.trafficRouting.istio.destinationRule.stableSubsetName
+      weight: 100
+    - destination:
+        host: educationSupport
+        subset: canary  # referenced in canary.trafficRouting.istio.destinationRule.canarySubsetName
+      weight: 0
+
+
+---
+
+
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: destrule-educationSupport
+spec:
+  host: educationSupport
+  subsets:
+  - name: canary   # referenced in canary.trafficRouting.istio.destinationRule.canarySubsetName
+    labels:        # labels will be injected with canary rollouts-pod-template-hash value
+      app: education-support
+  - name: stable   # referenced in canary.trafficRouting.istio.destinationRule.stableSubsetName
+    labels:        # labels will be injected with canary rollouts-pod-template-hash value
+      app: education-support
+
+

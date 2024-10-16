@@ -1,0 +1,9 @@
+package autonomousdrivingprojectmanagement.common;
+
+import autonomousdrivingprojectmanagement.ProjectManagementApplication;
+import io.cucumber.spring.CucumberContextConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@CucumberContextConfiguration
+@SpringBootTest(classes = { ProjectManagementApplication.class })
+public class CucumberSpingConfiguration {}

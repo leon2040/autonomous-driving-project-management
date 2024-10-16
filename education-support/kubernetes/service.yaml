@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: education-support
+  labels:
+    app: education-support
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: education-support

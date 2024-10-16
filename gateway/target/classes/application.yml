@@ -1,0 +1,76 @@
+server:
+  port: 8088
+
+---
+
+spring:
+  profiles: default
+  cloud:
+    gateway:
+#<<< API Gateway / Routes
+      routes:
+        - id: project-management
+          uri: http://localhost:8082
+          predicates:
+            - Path=/projects/**, 
+        - id: development-guide
+          uri: http://localhost:8083
+          predicates:
+            - Path=/developerGuides/**, 
+        - id: education-support
+          uri: http://localhost:8084
+          predicates:
+            - Path=/educations/**, 
+        - id: frontend
+          uri: http://localhost:8080
+          predicates:
+            - Path=/**
+#>>> API Gateway / Routes
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "*"
+            allowedMethods:
+              - "*"
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+
+
+---
+
+spring:
+  profiles: docker
+  cloud:
+    gateway:
+      routes:
+        - id: project-management
+          uri: http://projectManagement:8080
+          predicates:
+            - Path=/projects/**, 
+        - id: development-guide
+          uri: http://developmentGuide:8080
+          predicates:
+            - Path=/developerGuides/**, 
+        - id: education-support
+          uri: http://educationSupport:8080
+          predicates:
+            - Path=/educations/**, 
+        - id: frontend
+          uri: http://frontend:8080
+          predicates:
+            - Path=/**
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "*"
+            allowedMethods:
+              - "*"
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+
+server:
+  port: 8080
